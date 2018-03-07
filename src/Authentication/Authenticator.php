@@ -19,13 +19,16 @@ class Authenticator extends AbstractGuardAuthenticator
             $request->server->has('USERINFO_given_name') &&
             $request->server->has('USERINFO_family_name') &&
             $request->server->has('USERINFO_name') &&
-            $request->server->has('USERINFO_o') &&
-            $request->server->has('USERINFO_role')
+            $request->server->has('USERINFO_o')
         );
     }
 
     public function getCredentials(Request $request)
     {
+        $roles = $request->server->has('USERINFO_role') ?
+            explode(',', $request->server->get('USERINFO_role')) :
+            [ 'ROLE_USER' ];
+
         return [
             'emailAddress'         => $request->server->get('USERINFO_email'),
             'emailAddressVerified' => boolval($request->server->get('USERINFO_email_verified')),
@@ -33,7 +36,7 @@ class Authenticator extends AbstractGuardAuthenticator
             'lastName'             => $request->server->get('USERINFO_family_name'),
             'displayName'          => $request->server->get('USERINFO_name'),
             'siren'                => $request->server->get('USERINFO_o'),
-            'roles'                => explode(',', $request->server->get('USERINFO_role')),
+            'roles'                => $roles,
         ];
     }
 
